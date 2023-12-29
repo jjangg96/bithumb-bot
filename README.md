@@ -24,3 +24,7 @@ docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} -e C
 [빗썸 API 키 발급](https://www.bithumb.com/react/api-support/management-api) 에서 `가상자산 출금` 제외하고 체크하셔서 발급받으면 됩니다.
 
 * IP 및 출금 주소 제한 선택은 비워두세요.
+
+# 수수료 무료 등록 필수!
+
+[빗썸 수수료 무료 등록](https://www.bithumb.com/react/member/free-coupon-register)
