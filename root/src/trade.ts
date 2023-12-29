@@ -1,4 +1,4 @@
-import {bithumb as Bithumb, ExchangeError, Order} from 'ccxt';
+import {bithumb as Bithumb, Order} from 'ccxt';
 
 export class Trade {
 
@@ -14,7 +14,10 @@ export class Trade {
 
     public async buy(coin: string, price: number, amount: number) {
         //buy coin in bithumb with ccxt
-        return this.bithumb.createOrder(coin, 'limit', 'buy', amount, price).then(r => r).catch((e) => {
+        return this.bithumb.createOrder(coin, 'limit', 'buy', amount, price).then(r => {
+            console.log(new Date(), 'Buy', coin, price, amount);
+            return r
+        }).catch((e) => {
             return {
                 error: e.message,
             };
@@ -23,7 +26,10 @@ export class Trade {
 
     public async sell(coin: string, price: number, amount: number) {
         //sell coin in bithumb with ccxt
-        return this.bithumb.createOrder(coin, 'limit', 'sell', amount, price).then(r => r).catch((e) => {
+        return this.bithumb.createOrder(coin, 'limit', 'sell', amount, price).then(r => {
+            console.log(new Date(), 'Sell', coin, price, amount);
+            return r
+        }).catch((e) => {
             return {
                 error: e.message,
             };
@@ -33,9 +39,9 @@ export class Trade {
     public async cancel(order: Order) {
         //cancel order in bithumb with ccxt
         // console.log(new Date(), 'Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
-        return this.bithumb.cancelUnifiedOrder(order).then(r=>{
+        return this.bithumb.cancelUnifiedOrder(order).then((_r) => {
             // console.log('Cancel Done', order.id.substring(order.id.length-4));
-        }).catch((e) => {
+        }).catch((_e) => {
             // console.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
         });
     }
