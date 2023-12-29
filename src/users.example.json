@@ -1,0 +1,7 @@
+{
+  "connect_key": "",
+  "secret_key": "",
+  "coin": "SUI",
+  "min_tick": 1,
+  "amount": 20
+}
