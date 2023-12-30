@@ -29,14 +29,17 @@ import {Trade} from "./trade.ts";
                     const targetPrice = orderbookRange[0] + tick;
                     // console.log(targetPrice);
 
+                    // 랜덤 4자리 1보다 작은 소숫점 숫자
+                    const randomDecimal = Number(Math.random().toFixed(2));
 
-                    trade.buy(coin, targetPrice, amount).then((r) => {
+
+                    trade.buy(coin, targetPrice, amount + randomDecimal).then((r) => {
                         setTimeout(async () => {
                             if (!('error' in r)) await trade.cancel(r);
                         }, 3 * 1000);
                     });
 
-                    trade.sell(coin, targetPrice, amount).then((r) => {
+                    trade.sell(coin, targetPrice, amount + randomDecimal).then((r) => {
                         setTimeout(async () => {
                             if (!('error' in r)) await trade.cancel(r);
                         }, 3 * 1000);

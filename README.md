@@ -15,13 +15,13 @@
 # 실행
 
 ```bash
-docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} jjangg96/bithumb-bot:latest
+docker run --pull=always --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} jjangg96/bithumb-bot:latest
 ```
 
 # 옵션을 바꿔서 실행
 
 ```bash
-docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} -e COIN=SEI -e TICK=1 -e AMOUNT=15 jjangg96/bithumb-bot:latest
+docker run --pull=always --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} -e COIN=SEI -e TICK=1 -e AMOUNT=15 jjangg96/bithumb-bot:latest
 ```
 
 # ENV
