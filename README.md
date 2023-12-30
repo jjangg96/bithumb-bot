@@ -12,7 +12,6 @@
 
 [빗썸 수수료 무료 등록](https://www.bithumb.com/react/member/free-coupon-register)
 
-
 # 실행
 
 ```bash
@@ -20,10 +19,10 @@ docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} jjan
 ```
 
 # 옵션을 바꿔서 실행
-```bash
-docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} -e COIN=OSMO -e TICK=1 -e AMOUNT=1 jjangg96/bithumb-bot:latest
-```
 
+```bash
+docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} -e COIN=SEI -e TICK=1 -e AMOUNT=15 jjangg96/bithumb-bot:latest
+```
 
 # ENV
 
@@ -31,7 +30,7 @@ docker run --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Secret key} -e C
 |-------------|--------------------|---------|
 | CONNECT_KEY | 빗썸 API Connect Key | -       |
 | SECRET_KEY  | 빗썸 API Secret Key  | -       |
-| COIN        | 거래할 코인             | OSMO    |
+| COIN        | 거래할 코인             | SEI     |
 | TICK        | 최소 호가 단위           | 1       |
-| AMOUNT      | 주문 수량 단위           | 1       |
+| AMOUNT      | 주문 수량 단위           | 15      |
 

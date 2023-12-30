@@ -4,14 +4,17 @@ import {Trade} from "./trade.ts";
     const getEnv = (key: string, defaultValue: string | number) => {
         const value = process.env[key];
         if (value === undefined) return defaultValue;
-        if (typeof defaultValue === 'number') return parseInt(value);
+        if (typeof defaultValue === 'number') {
+            if (value.indexOf('.') >= 0) return parseFloat(value)
+            else return parseInt(value)
+        }
         return value;
     }
 
     const connectKey: string = getEnv('CONNECT_KEY', '') as string;
     const secretKey: string = getEnv('SECRET_KEY', '') as string;
-    const coin: string = getEnv('COIN', 'OSMO') as string;
-    const amount: number = getEnv('AMOUNT', 1) as number;
+    const coin: string = getEnv('COIN', 'SEI') as string;
+    const amount: number = getEnv('AMOUNT', 30) as number;
     const tick: number = getEnv('TICK', 1) as number;
 
     if (!connectKey || !secretKey) throw new Error('CONNECT_KEY or SECRET_KEY is empty');
@@ -23,17 +26,17 @@ import {Trade} from "./trade.ts";
                 if (orderbookRange[1] - orderbookRange[0] >= tick * 2) {
                     //targetPrice는 중간 값으로 설정
                     //const targetPrice = orderbookRange[0] + Math.ceil((orderbookRange[1] - orderbookRange[0]) / 2);
-                    // const targetPrice = orderbookRange[0] + min_tick;
+                    const targetPrice = orderbookRange[0] + tick;
                     // console.log(targetPrice);
 
 
-                    trade.sell(coin, orderbookRange[1] - tick, amount).then((r) => {
+                    trade.buy(coin, targetPrice, amount).then((r) => {
                         setTimeout(async () => {
                             if (!('error' in r)) await trade.cancel(r);
                         }, 3 * 1000);
                     });
 
-                    trade.buy(coin, orderbookRange[0] + tick, amount).then((r) => {
+                    trade.sell(coin, targetPrice, amount).then((r) => {
                         setTimeout(async () => {
                             if (!('error' in r)) await trade.cancel(r);
                         }, 3 * 1000);
@@ -49,7 +52,7 @@ import {Trade} from "./trade.ts";
     setInterval(async () => {
         try {
             //cancel
-            await trade.getOldestOrders(coin, 60).then(async (orders) => {
+            await trade.getOldestOrders(coin, 30).then(async (orders) => {
                 if (orders) {
                     console.log(orders.map((order) => order.id.substring(order.id.length - 4)).sort());
                     for (const order of orders) {
@@ -61,7 +64,7 @@ import {Trade} from "./trade.ts";
         } catch (e) {
             console.log(e);
         }
-    }, 60 * 1000);
+    }, 30 * 1000);
 
 
 })();
