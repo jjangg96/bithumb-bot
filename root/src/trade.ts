@@ -12,7 +12,7 @@ export class Trade {
         });
     }
 
-    public async buy(coin: string, price: number, amount: number) {
+    public async buy(coin: string, price: string, amount: number) {
         //buy coin in bithumb with ccxt
         return this.bithumb.createOrder(coin, 'limit', 'buy', amount, price).then(r => {
             console.log(new Date(), 'Buy', coin, price, amount);
@@ -25,7 +25,7 @@ export class Trade {
         });
     }
 
-    public async sell(coin: string, price: number, amount: number) {
+    public async sell(coin: string, price: string, amount: number) {
         //sell coin in bithumb with ccxt
         return this.bithumb.createOrder(coin, 'limit', 'sell', amount, price).then(r => {
             console.log(new Date(), 'Sell', coin, price, amount);
