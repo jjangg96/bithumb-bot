@@ -18,6 +18,7 @@ export class Trade {
             console.log(new Date(), 'Buy', coin, price, amount);
             return r
         }).catch((e) => {
+            // console.log(coin, price, amount, e);
             return {
                 error: e.message,
             };
@@ -30,6 +31,7 @@ export class Trade {
             console.log(new Date(), 'Sell', coin, price, amount);
             return r
         }).catch((e) => {
+            // console.log(coin, price, amount, e);
             return {
                 error: e.message,
             };

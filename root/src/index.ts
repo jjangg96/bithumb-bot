@@ -26,7 +26,10 @@ import {Trade} from "./trade.ts";
                 if (orderbookRange[1] - orderbookRange[0] >= tick * 2) {
                     //targetPrice는 중간 값으로 설정
                     //const targetPrice = orderbookRange[0] + Math.ceil((orderbookRange[1] - orderbookRange[0]) / 2);
-                    const targetPrice = orderbookRange[0] + tick;
+                    let targetPrice: number = orderbookRange[0] + tick;
+                    if (`${targetPrice}`.indexOf('.') >= 0) {
+                        targetPrice = parseFloat(targetPrice.toFixed(2));
+                    }
                     // console.log(targetPrice);
 
                     // 랜덤 4자리 1보다 작은 소숫점 숫자
@@ -36,13 +39,13 @@ import {Trade} from "./trade.ts";
                     trade.buy(coin, targetPrice, amount + randomDecimal).then((r) => {
                         setTimeout(async () => {
                             if (!('error' in r)) await trade.cancel(r);
-                        }, 3 * 1000);
+                        }, 1000);
                     });
 
                     trade.sell(coin, targetPrice, amount + randomDecimal).then((r) => {
                         setTimeout(async () => {
                             if (!('error' in r)) await trade.cancel(r);
-                        }, 3 * 1000);
+                        }, 1000);
                     });
 
                 }
@@ -50,7 +53,7 @@ import {Trade} from "./trade.ts";
         } catch (e) {
             console.log(e);
         }
-    }, 100);
+    }, 200);
 
     setInterval(async () => {
         try {
