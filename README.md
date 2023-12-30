@@ -34,3 +34,9 @@ docker run --pull=always --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Se
 | TICK        | 최소 호가 단위           | 1       |
 | AMOUNT      | 주문 수량 단위           | 15      |
 
+# ChangeLog
+* 기본 값 OSMO -> SEI
+* 기본 Amount 값 늘림
+* Tick에 Float도 사용 가능
+* Amount에 랜덤 소숫점 2자리 추가
+* 매수 1호가 위 호가에 매수(Maker) 주문을 내고 그 호가에 같은 수량 매도함
