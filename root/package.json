@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "node --loader ts-node/esm src/index.ts ",
-    "server": "node --loader ts-node/esm server/index.ts ",
+    "server": "node --loader ts-node/esm src/server/index.ts ",
     "build": "tsc -p ."
   },
   "type": "module",

@@ -3,10 +3,9 @@ import {Server} from "socket.io";
 
 export class Orderbook {
 
-    private coins: string[] = [];
+    public coins: string[] = [];
     private wss: WebSocket;
     private socket: Server;
-;
 
     constructor(socket: Server) {
         this.socket = socket;
@@ -30,23 +29,35 @@ export class Orderbook {
         }
     } = {};
 
+    private targets: {
+        [coin: string]: {
+            bid: number,
+            ask: number
+        }
+    } = {};
+
     private sendTargetPrice(coin: string, bid: number, ask: number) {
         const tick = 1 / Math.pow(10, this.findDigit(bid));
-        if (ask - bid >= tick * 2) {
+        if (ask - bid >= tick * 3) {
 
-            let target = 0;
+            let bidTarget, askTarget;
 
             if (`${bid}`.indexOf('.') >= 0 || `${ask}`.indexOf('.') >= 0) {
                 //float
                 bid = parseFloat(`${bid}`);
                 ask = parseFloat(`${ask}`);
-
-                target = parseFloat(((ask + bid) / 2).toFixed(this.findDigit(bid)));
+                // target = parseFloat(((ask + bid) / 2).toFixed(this.findDigit(bid)));
+                const bidTick = parseFloat((bid + tick).toFixed(this.findDigit(bid)));
+                const askTick = parseFloat((ask - tick).toFixed(this.findDigit(ask)));
+                bidTarget = this.targets[coin] ? (this.targets[coin].bid === bid ? bid : bidTick) : bidTick;
+                askTarget = this.targets[coin] ? (this.targets[coin].ask === ask ? ask : askTick) : askTick;
             } else {
                 //int
                 bid = parseInt(`${bid}`);
                 ask = parseInt(`${ask}`);
-                target = Math.ceil((ask + bid) / 2);
+                // target = Math.ceil((ask + bid) / 2);
+                bidTarget = this.targets[coin] ? (this.targets[coin].bid === bid ? bid : bid + tick) : bid + tick;
+                askTarget = this.targets[coin] ? (this.targets[coin].ask === ask ? ask : ask - tick) : ask - tick;
             }
 
             this.orderbooks[coin] = {
@@ -54,15 +65,23 @@ export class Orderbook {
                 ask,
             }
 
-            // console.log(coin, bid, ask, target);
-            this.socket.emit(coin.toUpperCase(), target);
+            this.targets[coin] = {
+                bid: bidTarget,
+                ask: askTarget
+            };
+            // console.log(coin, bidTarget, askTarget);
+            this.socket.emit(coin.toUpperCase(), this.targets[coin]);
         }
 
 
     }
 
     private orderbookDepth(content: any) {
-        const bidAsks = content.list.reduce((acc: any, cur: any) => {
+        const bidAsks = content.list.reduce((acc: any, cur: {
+            symbol: string,
+            orderType: string,
+            price: any
+        }) => {
             const coin = cur.symbol.split('_')[0];
             let price = cur.price;
             if (price.indexOf('.') >= 0) {
@@ -136,6 +155,12 @@ export class Orderbook {
         const coin = content.symbol.split('_')[0];
         let bid = content.bids[0][0];
         let ask = content.asks[0][0];
+
+        // if (this.targets[coin] === bid) {
+        //     bid = content.bids[1][0];
+        // } else if (this.targets[coin] === ask) {
+        //     ask = content.asks[1][0];
+        // }
 
         this.sendTargetPrice(coin, bid, ask);
     }

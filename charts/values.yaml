@@ -32,9 +32,9 @@ securityContext: { }
 service:
   type: NodePort
   ports:
-    - port: 30331
-      targetPort: 30331
-      nodePort: 30331
+    - port: 30332
+      targetPort: 30332
+      nodePort: 30332
       protocol: TCP
       name: "ws"
 ingress: { }

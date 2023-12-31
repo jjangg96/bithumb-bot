@@ -4,7 +4,7 @@ import {Orderbook} from "./orderbook.ts";
 (async () => {
 
 
-    const io = new Server(30331, {
+    const io = new Server(30332, {
         cors: {
             origin: "*",
             methods: ["GET", "POST"]
@@ -26,5 +26,9 @@ import {Orderbook} from "./orderbook.ts";
     });
 
     const orderbook = new Orderbook(io);
+
+    setInterval(() => {
+        console.log(io.engine.clientsCount, orderbook.coins);
+    }, 60 * 1000);
 
 })();
