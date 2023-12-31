@@ -11,7 +11,7 @@ image:
 
 imagePullSecrets: {}
 nameOverride: ""
-fullnameOverride: "bithumb-bot"
+fullnameOverride: "bithumb-bot-server"
 
 serviceAccount:
   # Specifies whether a service account should be created
