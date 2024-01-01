@@ -20,6 +20,10 @@ export class Orderbook {
                 console.log(JSON.parse(data));
             }
         });
+        this.wss.on('close', () => {
+            console.error('WebSocket Closed');
+            process.exit();
+        });
     }
 
 
