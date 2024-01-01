@@ -26,13 +26,6 @@ export class Orderbook {
         });
     }
 
-
-    private orderbooks: {
-        [coin: string]: {
-            bid: number, ask: number
-        }
-    } = {};
-
     private targets: {
         [coin: string]: {
             bid: number,
@@ -43,30 +36,19 @@ export class Orderbook {
     private sendTargetPrice(coin: string, bid: number, ask: number) {
         const tick = 1 / Math.pow(10, this.findDigit(bid));
         if (ask - bid >= tick * 3) {
-
-            let bidTarget, askTarget;
+            let bidTarget: number, askTarget: number;
 
             if (`${bid}`.indexOf('.') >= 0 || `${ask}`.indexOf('.') >= 0) {
                 //float
-                bid = parseFloat(`${bid}`);
-                ask = parseFloat(`${ask}`);
                 // target = parseFloat(((ask + bid) / 2).toFixed(this.findDigit(bid)));
-                const bidTick = parseFloat((bid + tick).toFixed(this.findDigit(bid)));
-                const askTick = parseFloat((ask - tick).toFixed(this.findDigit(ask)));
-                bidTarget = this.targets[coin] ? (this.targets[coin].bid === bid ? bid : bidTick) : bidTick;
-                askTarget = this.targets[coin] ? (this.targets[coin].ask === ask ? ask : askTick) : askTick;
+                const bidPlusTick = parseFloat((bid + tick).toFixed(this.findDigit(bid)));
+                const askMinusTick = parseFloat((ask - tick).toFixed(this.findDigit(ask)));
+                bidTarget = this.targets[coin] && this.targets[coin].bid === bid ? bid : bidPlusTick;
+                askTarget = this.targets[coin] && this.targets[coin].ask === ask ? ask : askMinusTick;
             } else {
-                //int
-                bid = parseInt(`${bid}`);
-                ask = parseInt(`${ask}`);
                 // target = Math.ceil((ask + bid) / 2);
-                bidTarget = this.targets[coin] ? (this.targets[coin].bid === bid ? bid : bid + tick) : bid + tick;
-                askTarget = this.targets[coin] ? (this.targets[coin].ask === ask ? ask : ask - tick) : ask - tick;
-            }
-
-            this.orderbooks[coin] = {
-                bid,
-                ask,
+                bidTarget = this.targets[coin] && this.targets[coin].bid === bid ? bid : bid + tick;
+                askTarget = this.targets[coin] && this.targets[coin].ask === ask ? ask : ask - tick;
             }
 
             this.targets[coin] = {
@@ -76,8 +58,6 @@ export class Orderbook {
             // console.log(coin, bidTarget, askTarget);
             this.socket.emit(coin.toUpperCase(), this.targets[coin]);
         }
-
-
     }
 
     private orderbookDepth(content: any) {
@@ -87,20 +67,13 @@ export class Orderbook {
             price: any
         }) => {
             const coin = cur.symbol.split('_')[0];
-            let price = cur.price;
-            if (price.indexOf('.') >= 0) {
-                //float
-                price = parseFloat(price)
-            } else {
-                //int
-                price = parseInt(price);
-            }
+            let price = Number(cur.price);
 
-            if (this.orderbooks[coin]) {
+            if (this.targets[coin]) {
                 if (!acc[coin]) {
                     acc[coin] = {
-                        bid: this.orderbooks[coin].bid,
-                        ask: this.orderbooks[coin].ask,
+                        bid: this.targets[coin].bid,
+                        ask: this.targets[coin].ask,
                     }
                 }
 
@@ -157,8 +130,8 @@ export class Orderbook {
 
     private orderbookSnapshot(content: any) {
         const coin = content.symbol.split('_')[0];
-        let bid = content.bids[0][0];
-        let ask = content.asks[0][0];
+        let bid = Number(content.bids[0][0]);
+        let ask = Number(content.asks[0][0]);
 
         // if (this.targets[coin] === bid) {
         //     bid = content.bids[1][0];
@@ -170,11 +143,11 @@ export class Orderbook {
     }
 
     public addCoin(coin: string) {
-        console.log('addCoin', this.coins, '<-', coin);
         coin = coin.toUpperCase();
 
         if (this.wss.readyState === WebSocket.OPEN && this.coins.indexOf(coin) < 0) {
             this.coins.push(coin);
+            console.log('addCoin', this.coins, '<-', coin);
 
             const orderbooksnapshot = JSON.stringify({
                 "type": "orderbooksnapshot",
@@ -198,8 +171,14 @@ export class Orderbook {
             return 3;
         } else if (bid < 100) {
             return 2;
-        } else {
+        } else if (bid < 5000) {
             return 0;
+        } else if (bid < 100000) {
+            return -1;
+        } else if (bid < 1000000) {
+            return -2;
+        } else {
+            return -3;
         }
     }
 

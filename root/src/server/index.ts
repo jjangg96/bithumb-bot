@@ -20,7 +20,6 @@ import {Orderbook} from "./orderbook.ts";
         });
 
         socket.on('COIN', (coin) => {
-            console.log(`Listen ${coin}`);
             orderbook.addCoin(coin);
         });
     });

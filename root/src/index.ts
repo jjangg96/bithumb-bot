@@ -33,7 +33,8 @@ import {io} from "socket.io-client";
 
     const trade = new Trade(connectKey, secretKey);
 
-    const socket = io('http://ws.0base.vc:30332');
+    // const socket = io('http://ws.0base.vc:30332');
+    const socket = io('http://localhost:30332');
     socket.on('connect', () => {
         console.log('connected');
         socket.emit('COIN', coin.toUpperCase());
@@ -43,17 +44,13 @@ import {io} from "socket.io-client";
     });
     socket.on(`${coin.toUpperCase()}`, async ({bid, ask}) => {
         try {
-            // 랜덤 4자리 1보다 작은 소숫점 숫자
-            const randomDecimal = Number(Math.random().toFixed(2));
-
-
-            trade.buy(coin, bid, amount + randomDecimal).then((r) => {
+            trade.buy(coin, bid, amount).then((r) => {
                 setTimeout(async () => {
                     if (!('error' in r)) await trade.cancel(r);
                 }, 10 * 1000);
             });
 
-            trade.sell(coin, ask, amount + randomDecimal).then((r) => {
+            trade.sell(coin, ask, amount).then((r) => {
                 setTimeout(async () => {
                     if (!('error' in r)) await trade.cancel(r);
                 }, 10 * 1000);

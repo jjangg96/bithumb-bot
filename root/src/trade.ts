@@ -14,11 +14,12 @@ export class Trade {
 
     public async buy(coin: string, price: string, amount: number) {
         //buy coin in bithumb with ccxt
+        coin = `${coin}/KRW`;
         return this.bithumb.createOrder(coin, 'limit', 'buy', amount, price).then(r => {
             console.log(new Date(), 'Buy', coin, price, amount);
             return r
         }).catch((e) => {
-            // console.log(coin, price, amount, e);
+            // console.log('BUY', coin, price, amount, e);
             return {
                 error: e.message,
             };
@@ -27,11 +28,12 @@ export class Trade {
 
     public async sell(coin: string, price: string, amount: number) {
         //sell coin in bithumb with ccxt
+        coin = `${coin}/KRW`;
         return this.bithumb.createOrder(coin, 'limit', 'sell', amount, price).then(r => {
             console.log(new Date(), 'Sell', coin, price, amount);
             return r
         }).catch((e) => {
-            // console.log(coin, price, amount, e);
+            // console.log('SELL', coin, price, amount, e);
             return {
                 error: e.message,
             };
