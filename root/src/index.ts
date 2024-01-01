@@ -2,17 +2,6 @@ import {Trade} from "./trade.ts";
 import {io} from "socket.io-client";
 
 (async () => {
-    const findDigit = (bid: number) => {
-        if (bid < 1) {
-            return 4;
-        } else if (bid < 10) {
-            return 3;
-        } else if (bid < 100) {
-            return 2;
-        } else {
-            return 0;
-        }
-    }
 
     const getEnv = (key: string, defaultValue: string | number) => {
         const value = process.env[key];
@@ -33,8 +22,8 @@ import {io} from "socket.io-client";
 
     const trade = new Trade(connectKey, secretKey);
 
-    // const socket = io('http://ws.0base.vc:30332');
-    const socket = io('http://localhost:30332');
+    const socket = io('http://ws.0base.vc:30332');
+    // const socket = io('http://localhost:30332');
     socket.on('connect', () => {
         console.log('connected');
         socket.emit('COIN', coin.toUpperCase());
