@@ -36,13 +36,13 @@ import {io} from "socket.io-client";
             trade.buy(coin, bid, amount).then((r) => {
                 setTimeout(async () => {
                     if (!('error' in r)) await trade.cancel(r);
-                }, 10 * 1000);
+                }, 30 * 1000);
             });
 
             trade.sell(coin, ask, amount).then((r) => {
                 setTimeout(async () => {
                     if (!('error' in r)) await trade.cancel(r);
-                }, 10 * 1000);
+                }, 30 * 1000);
             });
         } catch (e) {
             console.log(e);
