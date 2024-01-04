@@ -123,7 +123,7 @@ import {io} from "socket.io-client";
                     order = queue.shift();
                 }
             }
-            await toBithumb(order);
+            if (order) await toBithumb(order);
         }
     }
 
