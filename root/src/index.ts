@@ -46,7 +46,7 @@ import {io} from "socket.io-client";
 
         if (status === 'STOP') return;
 
-        if (queueTypes()['BALANCE'] < 2 || queueTypes()['BALANCE'] === undefined) {
+        if (queueTypes()['BALANCE'] < 1 || queueTypes()['BALANCE'] === undefined) {
             queue.push({
                 type: 'BALANCE',
                 coin: coin
@@ -156,9 +156,11 @@ import {io} from "socket.io-client";
 
     setInterval(async () => {
         try {
-            queue.push({
-                type: 'CANCEL_ALL'
-            });
+            if (queueTypes()['CANCEL_ALL'] < 1 || queueTypes()['CANCEL_ALL'] === undefined) {
+                queue.push({
+                    type: 'CANCEL_ALL'
+                });
+            }
         } catch (e) {
             console.log(e);
         }
