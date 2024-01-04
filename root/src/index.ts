@@ -47,14 +47,14 @@ import {io} from "socket.io-client";
         if (status === 'STOP') return;
 
         if (queueTypes()['BALANCE'] < 1 || queueTypes()['BALANCE'] === undefined) {
-            queue.push({
+            addQueue({
                 type: 'BALANCE',
                 coin: coin
             });
         }
 
         if (balances['KRW'] >= parseFloat(bid) * amount) {
-            queue.push({
+            addQueue({
                 type: 'BUY',
                 coin: coin,
                 price: bid,
@@ -63,7 +63,7 @@ import {io} from "socket.io-client";
         }
 
         if (balances[coin] >= amount) {
-            queue.push({
+            addQueue({
                 type: 'SELL',
                 coin: coin,
                 price: ask,
@@ -72,6 +72,12 @@ import {io} from "socket.io-client";
         }
     });
 
+    const addQueue = (item: any) => {
+        item.date = new Date();
+        queue.push(item);
+
+    }
+
     setInterval(async () => {
         if (queue.length > 10) {
             //queue.type별로 length 출력
@@ -79,40 +85,52 @@ import {io} from "socket.io-client";
         }
     }, 60 * 1000);
 
-    setInterval(async () => {
-        try {
-            for (let i = 0; i < queueExecutor; i++) {
-                const order = queue.shift();
-
-                if (order) {
-                    if (order.type === 'BALANCE') {
-                        const totalBalances = await trade.getBalance();
-                        balances['KRW'] = totalBalances.KRW.free as number
-                        balances[order.coin] = totalBalances[order.coin].free as number;
-                    } else if (order.type === 'BUY' && order.coin && order.price && order.amount) {
-                        trade.buy(order.coin, order.price, order.amount).then(() => {
-                        });
-                    } else if (order.type === 'SELL' && order.coin && order.price && order.amount) {
-                        trade.sell(order.coin, order.price, order.amount).then(() => {
-                        });
-                    } else if (order.type === 'CANCEL' && order.order) {
-                        trade.cancelUnifiedOrder(order.order).then(() => {
-                        });
-                    } else if (order.type === 'CANCEL_ALL') {
-                        //cancel
-                        trade.getOldestOrders(coin, 5).then(async (orders) => {
-                            if (orders) {
-                                // console.log(orders.map((order) => order.id.substring(order.id.length - 4)).sort());
-                                for (const order of orders) {
-                                    queue.push({
-                                        type: 'CANCEL',
-                                        order: order
-                                    });
-                                }
-                            }
+    const toBithumb = async (order: any) => {
+        if (order.type === 'BALANCE') {
+            const totalBalances = await trade.getBalance();
+            balances['KRW'] = totalBalances.KRW.free as number
+            balances[order.coin] = totalBalances[order.coin].free as number;
+        } else if (order.type === 'BUY' && order.coin && order.price && order.amount) {
+            trade.buy(order.coin, order.price, order.amount).then(() => {
+            });
+        } else if (order.type === 'SELL' && order.coin && order.price && order.amount) {
+            trade.sell(order.coin, order.price, order.amount).then(() => {
+            });
+        } else if (order.type === 'CANCEL' && order.order) {
+            trade.cancelUnifiedOrder(order.order).then(() => {
+            });
+        } else if (order.type === 'CANCEL_ALL') {
+            //cancel
+            trade.getOldestOrders(coin, 5).then(async (orders) => {
+                if (orders) {
+                    // console.log(orders.map((order) => order.id.substring(order.id.length - 4)).sort());
+                    for (const order of orders) {
+                        addQueue({
+                            type: 'CANCEL',
+                            order: order
                         });
                     }
                 }
+            });
+        }
+    }
+
+    const nextBithumb = async () => {
+        let order = queue.shift();
+        if (order) {
+            if (order.type === 'BUY' || order.type === 'SELL') {
+                if (order.date && new Date().getTime() - order.date.getTime() > 1000 * 2) {
+                    order = queue.shift();
+                }
+            }
+            await toBithumb(order);
+        }
+    }
+
+    setInterval(async () => {
+        try {
+            for (let i = 0; i < queueExecutor; i++) {
+                await nextBithumb();
             }
         } catch (e) {
             console.log(e);
@@ -157,7 +175,7 @@ import {io} from "socket.io-client";
     setInterval(async () => {
         try {
             if (queueTypes()['CANCEL_ALL'] < 1 || queueTypes()['CANCEL_ALL'] === undefined) {
-                queue.push({
+                addQueue({
                     type: 'CANCEL_ALL'
                 });
             }
