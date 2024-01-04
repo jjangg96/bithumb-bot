@@ -117,7 +117,7 @@ import {io} from "socket.io-client";
         } catch (e) {
             console.log(e);
         }
-    }, 500);
+    }, 1000);
 
     // setInterval(async () => {
     //     try {
