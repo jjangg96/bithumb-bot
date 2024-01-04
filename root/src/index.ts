@@ -135,7 +135,7 @@ import {io} from "socket.io-client";
         } catch (e) {
             console.log(e);
         }
-    }, 1000);
+    }, 1000 / queueExecutor);
 
     // setInterval(async () => {
     //     try {
