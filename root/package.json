@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "node --loader ts-node/esm src/index.ts ",
-    "server": "node --loader ts-node/esm src/server/index.ts ",
+    "start": "node --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' src/index.ts ",
+    "server": "node --import 'data:text/javascript,import { register } from \"node:module\"; import { pathToFileURL } from \"node:url\"; register(\"ts-node/esm\", pathToFileURL(\"./\"));' src/server/index.ts ",
     "build": "tsc -p ."
   },
   "type": "module",

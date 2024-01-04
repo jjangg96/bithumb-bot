@@ -16,10 +16,11 @@ export class Trade {
         //buy coin in bithumb with ccxt
         coin = `${coin}/KRW`;
         return this.bithumb.createOrder(coin, 'limit', 'buy', amount, price).then(r => {
-            console.log(new Date(), 'Buy', coin, price, amount);
+            console.log(new Date(), 'BUY', coin, price, amount);
             return r
         }).catch((e) => {
-            // console.log('BUY', coin, price, amount, e);
+            if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'BUY', coin, price, amount, 'Rate limited');
+            else if (e.message.indexOf('초과') === -1) console.log(new Date(), 'BUY', coin, price, amount, e);
             return {
                 error: e.message,
             };
@@ -30,20 +31,31 @@ export class Trade {
         //sell coin in bithumb with ccxt
         coin = `${coin}/KRW`;
         return this.bithumb.createOrder(coin, 'limit', 'sell', amount, price).then(r => {
-            console.log(new Date(), 'Sell', coin, price, amount);
+            console.log(new Date(), 'SELL', coin, price, amount);
             return r
         }).catch((e) => {
-            // console.log('SELL', coin, price, amount, e);
+            if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'SELL', coin, price, amount, 'Rate limited');
+            else if (e.message.indexOf('초과') === -1) console.log(new Date(), 'SELL', coin, price, amount, e);
             return {
                 error: e.message,
             };
         });
     }
 
-    public async cancel(order: Order) {
+    public async cancelUnifiedOrder(order: Order) {
         //cancel order in bithumb with ccxt
         // console.log(new Date(), 'Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
         return this.bithumb.cancelUnifiedOrder(order).then((_r) => {
+            // console.log('Cancel Done', order.id.substring(order.id.length-4));
+        }).catch((_e) => {
+            // console.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
+        });
+    }
+
+    public async cancel(id: string, symbol: string, side: string) {
+        //cancel order in bithumb with ccxt
+        // console.log(new Date(), 'Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
+        return this.bithumb.cancelOrder(id, symbol, {type: side}).then((_r) => {
             // console.log('Cancel Done', order.id.substring(order.id.length-4));
         }).catch((_e) => {
             // console.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
@@ -54,7 +66,7 @@ export class Trade {
         //cancel all order in bithumb with ccxt
         return this.bithumb.fetchOpenOrders(coin).then((orders) => {
             for (const order of orders) {
-                this.cancel(order);
+                this.cancelUnifiedOrder(order);
             }
         });
     }
@@ -74,9 +86,9 @@ export class Trade {
         return (await this.bithumb.fetchTicker(coin)).last;
     }
 
-    public async getBalance(coin: string) {
+    public async getBalance() {
         //get current price in bithumb with ccxt
-        return (await this.bithumb.fetchBalance())[coin].free;
+        return (await this.bithumb.fetchBalance());
     }
 
     public async getOrderbookRange(coin: string) {
