@@ -35,7 +35,7 @@ export class Orderbook {
 
     private sendTargetPrice(coin: string, bid: number, ask: number) {
         const tick = 1 / Math.pow(10, this.findDigit(bid));
-        if (ask - bid >= tick * 4) {
+        if (ask - bid >= tick * 3) {
             let bidTarget: number, askTarget: number;
 
             if (`${bid}`.indexOf('.') >= 0 || `${ask}`.indexOf('.') >= 0) {
