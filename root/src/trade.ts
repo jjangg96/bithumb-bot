@@ -3,8 +3,10 @@ import {bithumb as Bithumb, Order} from 'ccxt';
 export class Trade {
 
     private readonly bithumb: Bithumb;
+    private DEBUG = false;
 
     constructor(apiKey: string, secret: string) {
+        this.DEBUG = !!(process.env['DEBUG'] && process.env['DEBUG'].toLowerCase().trim() === 'true');
         this.bithumb = new Bithumb({
             apiKey,
             secret,
@@ -19,8 +21,9 @@ export class Trade {
             console.log(new Date(), 'BUY', coin, price, amount);
             return r
         }).catch((e) => {
-            if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'BUY', coin, price, amount, 'Rate limited');
-            else if (e.message.indexOf('초과') === -1) console.log(new Date(), 'BUY', coin, price, amount, e);
+            if (this.DEBUG) console.log(new Date(), 'BUY', coin, price, amount, e);
+            else if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'BUY', coin, price, amount, 'Rate limited');
+            else if (e.message.indexOf('잔액') === -1 || e.message.indexOf('초과') === -1) console.log(new Date(), 'BUY', coin, price, amount, e);
             return {
                 error: e.message,
             };
@@ -34,8 +37,9 @@ export class Trade {
             console.log(new Date(), 'SELL', coin, price, amount);
             return r
         }).catch((e) => {
-            if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'SELL', coin, price, amount, 'Rate limited');
-            else if (e.message.indexOf('초과') === -1) console.log(new Date(), 'SELL', coin, price, amount, e);
+            if (this.DEBUG) console.log(new Date(), 'SELL', coin, price, amount, e);
+            else if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'SELL', coin, price, amount, 'Rate limited');
+            else if (e.message.indexOf('잔액') === -1 || e.message.indexOf('초과') === -1) console.log(new Date(), 'SELL', coin, price, amount, e);
             return {
                 error: e.message,
             };
