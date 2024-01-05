@@ -1,12 +1,30 @@
 import {bithumb as Bithumb, Order} from 'ccxt';
+import numeral from 'numeral';
+import {Env} from "./env.js";
 
 export class Trade {
 
     private readonly bithumb: Bithumb;
-    private DEBUG = false;
+    private readonly DEBUG;
+    private readonly startAt = new Date().getTime();
+    private initialUserTicker: {
+        averagePrice: number,
+        volume: number,
+    } = {
+        averagePrice: 0,
+        volume: 0,
+    };
+    private currnetUserTicker: {
+        averagePrice: number,
+        volume: number,
+    } = {
+        averagePrice: 0,
+        volume: 0,
+    };
+
 
     constructor(apiKey: string, secret: string) {
-        this.DEBUG = !!(process.env['DEBUG'] && process.env['DEBUG'].toLowerCase().trim() === 'true');
+        this.DEBUG = ((Env.GetEnv('DEBUG', 'false') as string).toLowerCase().trim() === 'true');
         this.bithumb = new Bithumb({
             apiKey,
             secret,
@@ -14,16 +32,56 @@ export class Trade {
         });
     }
 
+    private log(...args: any[]) {
+        const traded = this.currnetUserTicker.volume - this.initialUserTicker.volume;
+        const diffSec = (new Date().getTime() - this.startAt) / 1000;
+        const tradePerSec = traded / diffSec / 10000;
+        const avgTradePerSec = this.currnetUserTicker.volume / 10000 / (60 * 60 * 24);
+        const status = `[${numeral(this.currnetUserTicker.volume / 100000000).format('0,0.0')}/${numeral(traded / 10000).format('0,0')}/${numeral(tradePerSec).format('0,0.0')}${tradePerSec >= avgTradePerSec ? '>' : '<'}${numeral(avgTradePerSec).format('0,0.0')}]`;
+        console.log(new Date(), ...args, status);
+    }
+
+    public initUserTicker(coin: string) {
+        this.updateUserTicker(coin).then((r) => {
+            this.initialUserTicker = r;
+        });
+    }
+
+    public async updateUserTicker(coin: string) {
+        return this.bithumb.privatePostInfoTicker({
+            order_currency: coin,
+            payment_currency: 'KRW',
+        }).then((r) => {
+            const current = {
+                averagePrice: Number(r.data.average_price),
+                volume: Number(r.data.units_traded) * Number(r.data.average_price),
+            }
+            this.currnetUserTicker = current;
+            return current;
+        }).catch((_e) => {
+            return {
+                averagePrice: 0,
+                traded: 0,
+                volume: 0,
+            }
+        });
+    }
+
+    public getTotalVolume() {
+        return this.currnetUserTicker.volume;
+    }
+
+
     public async buy(coin: string, price: string, amount: number) {
         //buy coin in bithumb with ccxt
         coin = `${coin}/KRW`;
         return this.bithumb.createOrder(coin, 'limit', 'buy', amount, price).then(r => {
-            console.log(new Date(), 'BUY', coin, price, amount);
+            this.log('BUY ', coin, numeral(price).format('0,0[.]0'), amount);
             return r
         }).catch((e) => {
-            if (this.DEBUG) console.log(new Date(), 'BUY', coin, price, amount, e);
-            else if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'BUY', coin, price, amount, 'Rate limited');
-            else if (e.message.indexOf('잔액') === -1 && e.message.indexOf('초과') === -1) console.log(new Date(), 'BUY', coin, price, amount, e);
+            if (this.DEBUG) this.log('BUY ', coin, numeral(price).format('0,0[.]0'), amount, e);
+            else if (e.message.indexOf('Too Many') >= 0) this.log('BUY ', coin, numeral(price).format('0,0[.]0'), amount, 'Rate limited');
+            else if (e.message.indexOf('잔액') === -1 && e.message.indexOf('초과') === -1) this.log('BUY ', coin, numeral(price).format('0,0[.]0'), amount, e);
             return {
                 error: e.message,
             };
@@ -34,12 +92,12 @@ export class Trade {
         //sell coin in bithumb with ccxt
         coin = `${coin}/KRW`;
         return this.bithumb.createOrder(coin, 'limit', 'sell', amount, price).then(r => {
-            console.log(new Date(), 'SELL', coin, price, amount);
+            this.log('SELL', coin, numeral(price).format('0,0[.]0'), amount);
             return r
         }).catch((e) => {
-            if (this.DEBUG) console.log(new Date(), 'SELL', coin, price, amount, e);
-            else if (e.message.indexOf('Too Many') >= 0) console.log(new Date(), 'SELL', coin, price, amount, 'Rate limited');
-            else if (e.message.indexOf('잔액') === -1 && e.message.indexOf('초과') === -1) console.log(new Date(), 'SELL', coin, price, amount, e);
+            if (this.DEBUG) this.log('SELL', coin, numeral(price).format('0,0[.]0'), amount, e);
+            else if (e.message.indexOf('Too Many') >= 0) this.log('SELL', coin, numeral(price).format('0,0[.]0'), amount, 'Rate limited');
+            else if (e.message.indexOf('잔액') === -1 && e.message.indexOf('초과') === -1) this.log('SELL', coin, numeral(price).format('0,0[.]0'), amount, e);
             return {
                 error: e.message,
             };
@@ -48,21 +106,21 @@ export class Trade {
 
     public async cancelUnifiedOrder(order: Order) {
         //cancel order in bithumb with ccxt
-        // console.log(new Date(), 'Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
+        // this.log('Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
         return this.bithumb.cancelUnifiedOrder(order).then((_r) => {
-            // console.log('Cancel Done', order.id.substring(order.id.length-4));
+            // this.log('Cancel Done', order.id.substring(order.id.length-4));
         }).catch((_e) => {
-            // console.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
+            // this.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
         });
     }
 
     public async cancel(id: string, symbol: string, side: string) {
         //cancel order in bithumb with ccxt
-        // console.log(new Date(), 'Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
+        // this.log('Cancel', order.symbol, order.datetime, order.price, order.side, order.id);
         return this.bithumb.cancelOrder(id, symbol, {type: side}).then((_r) => {
-            // console.log('Cancel Done', order.id.substring(order.id.length-4));
+            // this.log('Cancel Done', order.id.substring(order.id.length-4));
         }).catch((_e) => {
-            // console.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
+            // this.error('Cancel Error', order.id.substring(order.id.length-4), order.price, e.message);
         });
     }
 

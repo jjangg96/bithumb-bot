@@ -26,9 +26,10 @@ docker run --pull=always --rm -it -e CONNECT_KEY={Connect Key} -e SECRET_KEY={Se
 
 # ENV
 
-| Env         | Description        | Default |
-|-------------|--------------------|---------|
-| CONNECT_KEY | 빗썸 API Connect Key | -       |
-| SECRET_KEY  | 빗썸 API Secret Key  | -       |
-| COIN        | 거래할 코인             | BTC     |
-| AMOUNT      | 주문 수량 단위           | 0.0001  |
+| Env           | Description            | Default |
+|---------------|------------------------|---------|
+| CONNECT_KEY   | 빗썸 API Connect Key     | -       |
+| SECRET_KEY    | 빗썸 API Secret Key      | -       |
+| COIN          | 거래할 코인                 | BTC     |
+| AMOUNT        | 주문 수량 단위               | 0.0001  |
+| TARGET_VOLUME | 프로그램 종료를 위한 목표 거래량(억원) | 30      |
