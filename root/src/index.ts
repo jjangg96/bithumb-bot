@@ -46,12 +46,12 @@ import {io} from "socket.io-client";
 
         if (status === 'STOP') return;
 
-        //if (queueTypes()['BALANCE'] < 1 || queueTypes()['BALANCE'] === undefined) {
+        if (queueTypes()['BALANCE'] < queueExecutor || queueTypes()['BALANCE'] === undefined) {
             addQueue({
                 type: 'BALANCE',
                 coin: coin
             });
-        //}
+        }
 
         if (balances['KRW'] >= parseFloat(bid) * amount) {
             addQueue({
@@ -174,13 +174,13 @@ import {io} from "socket.io-client";
 
     setInterval(async () => {
         try {
-            //if (queueTypes()['CANCEL_ALL'] < 1 || queueTypes()['CANCEL_ALL'] === undefined) {
+            if (queueTypes()['CANCEL_ALL'] < queueExecutor || queueTypes()['CANCEL_ALL'] === undefined) {
                 addQueue({
                     type: 'CANCEL_ALL'
                 });
-            //}
+            }
         } catch (e) {
             console.log(e);
         }
-    }, 5 * 1000);
+    }, 2 * 1000);
 })();
