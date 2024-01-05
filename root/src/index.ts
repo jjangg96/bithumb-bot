@@ -18,7 +18,7 @@ import {io} from "socket.io-client";
     const coin: string = getEnv('COIN', 'SEI') as string;
     const amount: number = getEnv('AMOUNT', 30) as number;
     const status: string = getEnv('STATUS', 'START') as string;
-    const queueExecutor: number = getEnv('QUEUE_EXECUTOR', 1) as number;
+    const queueExecutor: number = getEnv('QUEUE_EXECUTOR', 20) as number;
 
     if (!connectKey || !secretKey) throw new Error('CONNECT_KEY or SECRET_KEY is empty');
 
@@ -46,12 +46,12 @@ import {io} from "socket.io-client";
 
         if (status === 'STOP') return;
 
-        if (queueTypes()['BALANCE'] < 1 || queueTypes()['BALANCE'] === undefined) {
+        //if (queueTypes()['BALANCE'] < 1 || queueTypes()['BALANCE'] === undefined) {
             addQueue({
                 type: 'BALANCE',
                 coin: coin
             });
-        }
+        //}
 
         if (balances['KRW'] >= parseFloat(bid) * amount) {
             addQueue({
@@ -101,7 +101,7 @@ import {io} from "socket.io-client";
             });
         } else if (order.type === 'CANCEL_ALL') {
             //cancel
-            trade.getOldestOrders(coin, 5).then(async (orders) => {
+            trade.getOldestOrders(coin, 2).then(async (orders) => {
                 if (orders) {
                     // console.log(orders.map((order) => order.id.substring(order.id.length - 4)).sort());
                     for (const order of orders) {
@@ -174,11 +174,11 @@ import {io} from "socket.io-client";
 
     setInterval(async () => {
         try {
-            if (queueTypes()['CANCEL_ALL'] < 1 || queueTypes()['CANCEL_ALL'] === undefined) {
+            //if (queueTypes()['CANCEL_ALL'] < 1 || queueTypes()['CANCEL_ALL'] === undefined) {
                 addQueue({
                     type: 'CANCEL_ALL'
                 });
-            }
+            //}
         } catch (e) {
             console.log(e);
         }
