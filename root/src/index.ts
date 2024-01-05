@@ -15,8 +15,8 @@ import {io} from "socket.io-client";
 
     const connectKey: string = getEnv('CONNECT_KEY', '') as string;
     const secretKey: string = getEnv('SECRET_KEY', '') as string;
-    const coin: string = getEnv('COIN', 'SEI') as string;
-    const amount: number = getEnv('AMOUNT', 30) as number;
+    const coin: string = getEnv('COIN', 'BTC') as string;
+    const amount: number = getEnv('AMOUNT', 0.0001) as number;
     const status: string = getEnv('STATUS', 'START') as string;
     const queueExecutor: number = getEnv('QUEUE_EXECUTOR', 20) as number;
 
