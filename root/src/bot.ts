@@ -53,7 +53,7 @@ export class Bot {
     }
 
     private async handleCancelAllOrder() {
-        this.trade.getOldestOrders(this.coin, 2).then(async (orders) => {
+        this.trade.getOldestOrders(this.coin, 7).then(async (orders) => {
             if (orders) {
                 for (const order of orders) {
                     this.addQueue({
@@ -169,7 +169,7 @@ export class Bot {
             } catch (e) {
                 console.log(e);
             }
-        }, 2 * 1000);
+        }, 7 * 1000);
 
         setInterval(async () => {
             try {
