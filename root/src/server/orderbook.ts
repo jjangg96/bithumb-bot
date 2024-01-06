@@ -35,13 +35,13 @@ export class Orderbook {
 
     private sendTargetPrice(coin: string, bid: number, ask: number) {
         const tick = 1 / Math.pow(10, this.findDigit(bid));
-        if (ask - bid >= tick * 3) {
+        if (ask - bid >= tick * 2) {
             let bidTarget: number, askTarget: number;
 
             if (`${bid}`.indexOf('.') >= 0 || `${ask}`.indexOf('.') >= 0) {
                 //float
                 // target = parseFloat(((ask + bid) / 2).toFixed(this.findDigit(bid)));
-                const bidPlusTick = parseFloat((bid + tick).toFixed(this.findDigit(bid)));
+                const bidPlusTick = parseFloat((bid).toFixed(this.findDigit(bid)));
                 const askMinusTick = parseFloat((ask - tick).toFixed(this.findDigit(ask)));
                 bidTarget = this.targets[coin] && this.targets[coin].bid === bid ? bid : bidPlusTick;
                 askTarget = this.targets[coin] && this.targets[coin].ask === ask ? ask : askMinusTick;
