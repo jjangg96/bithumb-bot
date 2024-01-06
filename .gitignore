@@ -1,4 +1,5 @@
 node_modules/
 src/users.json
 MY.md
-charts-client
+charts-client/
+charts-client-ellvision/
