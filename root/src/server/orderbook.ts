@@ -51,7 +51,7 @@ export class Orderbook {
                 askTarget = this.targets[coin] && this.targets[coin].ask === ask ? ask : ask - tick;
             }
 
-            if(this.targets[coin] === undefined || this.targets[coin].bid != bidTarget || this.targets[coin].ask != askTarget) {
+            if (this.targets[coin] && (this.targets[coin].bid != bidTarget || this.targets[coin].ask != askTarget)) {
                 // console.log(coin, bidTarget, askTarget);
                 this.socket.emit(coin.toUpperCase(), this.targets[coin]);
             }
